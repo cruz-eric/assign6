@@ -11,50 +11,12 @@ public class TestTicketOfficeTest {
 
 	public static int score = 0;
 	TheaterConfig tick = new TheaterConfig();
-	//@Test
-	public void basicServerTest() {
-		
-		final TicketServer bob = new TicketServer();
-		
-		Thread one = new Thread()
-		{
-			public void run()
-			{
-				try
-				{
-					bob.start(TicketServer.PORT, tick);
-				}
-				catch(IOException e){
-					e.printStackTrace();
-				}
-			}
-		};
-		one.start();
-		final TicketClient client = new TicketClient("A");
-		Thread two = new Thread()
-		{
-			public void run()
-			{
-				client.requestTicket();
-			}
-			
-		};
-		two.start();
-		try{
-			two.join();
-		}
-		catch(InterruptedException e){
-			e.printStackTrace();
-		}
-		finally{
-			System.exit(0);
-		}
-	}
 	@Test
-	public void createdTest()
-	{
+	public void createdTestwithTwoServers() {
+		
 		final TicketServer bob = new TicketServer();//server one
 		final TicketServer tim = new TicketServer();//server two
+		final TicketServer charl = new TicketServer();
 		tick = new TheaterConfig();
 		Thread one = new Thread()
 		{
@@ -75,7 +37,7 @@ public class TestTicketOfficeTest {
 			public void run()
 			{
 				try{
-				tim.start(TicketServer.PORT, tick);
+				bob.start(2223, tick);
 				}
 				catch(IOException e){
 					e.printStackTrace();
@@ -84,13 +46,20 @@ public class TestTicketOfficeTest {
 			
 		};
 		two.start();
-		Thread [] list = new Thread[750];
+		int amountofclients = 1000;
+		Thread [] list = new Thread[amountofclients];
 		final TicketClient test1 = new TicketClient("A");
 		final TicketClient test2 = new TicketClient("B");
 		try{
-		for(int i = 0;i<750;i++)
+		for(int i = 0;i<amountofclients;i++)
 		{
-			if(i%2==1)
+		//	if(test1.done || test2.done)
+		//	{
+		//		
+		//	}
+		//	else
+		//	{
+			if((i%2)==1)
 			{
 				list[i] = new Thread()
 				{
@@ -101,12 +70,129 @@ public class TestTicketOfficeTest {
 				};
 				list[i].start();
 			}
-			else{
+			else
+			{
 				list[i]= new Thread()
 				{
 					public void run()
 					{
 						test2.requestTicket();
+					}
+					
+				};
+				list[i].start();
+			}
+		//	}
+		}
+		
+		}
+		catch(Exception e)
+		{
+			System.err.println("Error");
+		}
+		finally
+		{
+			
+			for(int i =0;i<amountofclients;i++)
+			{
+				try {
+					list[i].join();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			System.exit(0);
+			//System.out.println("Start second test");
+		}
+	}
+	//@Test
+	public void createdTestwithThreeservers()
+	{
+		System.out.println("Start second testfsdafdsafda");
+		final TicketServer bob = new TicketServer();//server one
+		final TicketServer tim = new TicketServer();//server two
+		final TicketServer charl = new TicketServer();
+		tick = new TheaterConfig();
+		Thread one = new Thread()
+		{
+			public void run()
+			{
+				try
+				{
+					bob.start(TicketServer.PORT, tick);
+				}
+				catch(IOException e){
+					e.printStackTrace();
+				}
+			}
+		};
+		one.start();
+		Thread two = new Thread()
+		{
+			public void run()
+			{
+				try{
+				bob.start(2223, tick);
+				}
+				catch(IOException e){
+					e.printStackTrace();
+				}
+			}
+			
+		};
+		two.start();
+		Thread three = new Thread()
+		{
+			public void run()
+			{
+				try{
+					bob.start(2224, tick);
+				}
+				catch(IOException e){
+					e.printStackTrace();
+				}
+			}
+		};
+		three.start(); 
+		int amountofclients = 750;
+		Thread [] list = new Thread[amountofclients];
+		final TicketClient test1 = new TicketClient("A");
+		final TicketClient test2 = new TicketClient("B");
+		final TicketClient test3 = new TicketClient("C");
+		try{
+		for(int i = 0;i<amountofclients;i++)
+		{
+			if((i%3)==1)
+			{
+				list[i] = new Thread()
+				{
+					public void run(){
+						test1.requestTicket();
+					}
+					
+				};
+				list[i].start();
+			}
+			else if((i%3)==2){
+				list[i]= new Thread()
+				{
+					public void run()
+					{
+						test2.requestTicket();
+					}
+					
+				};
+				list[i].start();
+			}
+			else
+			{
+				list[i]= new Thread()
+				{
+					public void run()
+					{
+						test3.requestTicket();
 					}
 					
 				};
@@ -120,7 +206,7 @@ public class TestTicketOfficeTest {
 		}
 		finally
 		{
-			for(int i =0;i<750;i++)
+			for(int i =0;i<amountofclients;i++)
 			{
 				try {
 					list[i].join();
@@ -130,6 +216,7 @@ public class TestTicketOfficeTest {
 				}
 				
 			}
+		
 			System.exit(0);
 		}
 		

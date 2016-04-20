@@ -9,6 +9,7 @@ import java.net.Socket;
 
 public class TicketServer {
 	static int PORT = 2222;
+	static boolean done;
 	// EE422C: no matter how many concurrent requests you get,
 	// do not have more than three servers running concurrently
 	final static int MAXPARALLELTHREADS = 3;
@@ -17,6 +18,7 @@ public class TicketServer {
 	public static void start(int portNumber, TheaterConfig theaters ) throws IOException {
 		PORT = portNumber;
 		theater = theaters;
+		done =false;
 		try{
 			ServerSocket serverSocket = new ServerSocket(TicketServer.PORT);
 			while(true)
@@ -28,7 +30,7 @@ public class TicketServer {
 			}
 		}
 		catch(IOException e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		
 		
@@ -58,6 +60,7 @@ class ThreadedTicketServer extends Thread implements Runnable {
 		//TODO:422C
 		String fromClient;
 		ServerSocket serverSocket;
+	//	boolean over= false;
 		try {
 			//serverSocket=new ServerSocket(TicketServer.PORT)
 			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -65,10 +68,11 @@ class ThreadedTicketServer extends Thread implements Runnable {
 			if(in.readLine().equals("requesting a ticket"))
 			{
 			String result = TicketServer.theater.bestAvailableSeat();
-			if(result.equals("-1"))
+			if(result==null)
 				{
 					out.println("Sorry! Sold out of tickets");
 					socket.close();
+					
 				}
 			else
 				{
