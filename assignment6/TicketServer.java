@@ -12,9 +12,10 @@ public class TicketServer {
 	// EE422C: no matter how many concurrent requests you get,
 	// do not have more than three servers running concurrently
 	final static int MAXPARALLELTHREADS = 3;
-
+	public static TheaterConfig theater;
 	public static void start(int portNumber) throws IOException {
 		PORT = portNumber;
+		theater = new TheaterConfig();
 		Runnable serverThread = new ThreadedTicketServer();
 		Thread t = new Thread(serverThread);
 		t.start();
@@ -30,19 +31,35 @@ public class TicketServer {
 // call best available ticket, if sold out then give one client ticket, famliarize with threading and slides and servers 
 class ThreadedTicketServer implements Runnable {
 
-	String hostname = "127.0.0.1";
+	final String hostname = "127.0.0.1";
 	String threadname = "X";
 	String testcase;
 	TicketClient sc;
 
 	public void run() {
-		// TODO 422C
+		//TODO:422C
+		String fromClient;
 		ServerSocket serverSocket;
 		try {
 			serverSocket = new ServerSocket(TicketServer.PORT);
 			Socket clientSocket = serverSocket.accept();
 			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			while((fromClient=in.readLine())!=null)
+			{
+				String result = TicketServer.theater.bestAvailableSeat();
+				if(result.equals("-1"))
+				{
+					out.println("Sorry! Sold out of tickets");
+					break;
+				}
+				else
+				{
+					out.println(result);
+				}
+			}
+			serverSocket.close();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
