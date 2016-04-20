@@ -13,6 +13,7 @@ public class TicketServer {
 	// do not have more than three servers running concurrently
 	final static int MAXPARALLELTHREADS = 3;
 	public static TheaterConfig theater;
+	//public static ServerSocket serverSocket;
 	public static void start(int portNumber) throws IOException {
 		PORT = portNumber;
 		theater = new TheaterConfig();
@@ -35,30 +36,28 @@ class ThreadedTicketServer implements Runnable {
 	String threadname = "X";
 	String testcase;
 	TicketClient sc;
+	
 
 	public void run() {
 		//TODO:422C
 		String fromClient;
 		ServerSocket serverSocket;
 		try {
-			serverSocket = new ServerSocket(TicketServer.PORT);
+			serverSocket=new ServerSocket(TicketServer.PORT);
 			Socket clientSocket = serverSocket.accept();
 			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			while((fromClient=in.readLine())!=null)
-			{
+		
 				String result = TicketServer.theater.bestAvailableSeat();
 				if(result.equals("-1"))
 				{
 					out.println("Sorry! Sold out of tickets");
-					break;
+					serverSocket.close();
 				}
 				else
 				{
 					out.println(result);
 				}
-			}
-			serverSocket.close();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
