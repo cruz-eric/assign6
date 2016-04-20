@@ -23,7 +23,7 @@ public class TheaterConfig
 			}
 		}
 	}
-	public String bestAvailableSeat() //combining bestavailableseat and markAvailableseatTaken
+	public synchronized String bestAvailableSeat() //combining bestavailableseat and markAvailableseatTaken
 	{
 		String seat;
 		//priority of seats is middle front, fronts on the sides, then back middle, and back sides
@@ -36,7 +36,7 @@ public class TheaterConfig
 				{
 					seat= categorizeSeats(i);
 					middle[i][j]=1;
-					return seat +" Seat: " +(j+7);
+					return seat +" Seat: " +(j+108);
 				}
 			}
 			for(int j=0;j<left[i].length;j++)
@@ -45,13 +45,13 @@ public class TheaterConfig
 				{
 					seat=categorizeSeats(i);
 					left[i][j]=1;
-					return seat +" Seat: " +j;
+					return seat +" Seat: " +(j+101);
 				}
 				if(right[i][j]!=1)
 				{
 					seat= categorizeSeats(i);
 					right[i][j]=1;
-					return seat +" Seat: " +(j+21);
+					return seat +" Seat: " +(j+122);
 				}
 			}
 			
@@ -84,7 +84,7 @@ public class TheaterConfig
 			}
 			
 		}
-		return null; //reaching here means theres no available seats left
+		return "-1"; //reaching here means theres no available seats left
 	}
 	public String categorizeSeats(int row)
 	{

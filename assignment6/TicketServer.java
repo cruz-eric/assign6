@@ -14,12 +14,24 @@ public class TicketServer {
 	final static int MAXPARALLELTHREADS = 3;
 	public static TheaterConfig theater;
 	//public static ServerSocket serverSocket;
-	public static void start(int portNumber) throws IOException {
+	public static void start(int portNumber, TheaterConfig theaters ) throws IOException {
 		PORT = portNumber;
-		theater = new TheaterConfig();
-		Runnable serverThread = new ThreadedTicketServer();
-		Thread t = new Thread(serverThread);
-		t.start();
+		theater = theaters;
+		try{
+			ServerSocket serverSocket = new ServerSocket(TicketServer.PORT);
+			while(true)
+			{
+				Socket clientSock = serverSocket.accept();
+				Runnable serverThr = new ThreadedTicketServer(clientSock);
+				Thread star = new Thread(serverThr);
+				star.start();
+			}
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		
+		
 	}
 }
 //array of clients are created up to 100, once the clients list is below 10, we should add 50 more. 
@@ -30,35 +42,39 @@ public class TicketServer {
 //the same theater configuration, and it goes prioritising, both ticket servers are called at the same time, if both are called, 
 //then we just give it one and send the other, after both are called, call a checking function to see if the tickets are the same, 
 // call best available ticket, if sold out then give one client ticket, famliarize with threading and slides and servers 
-class ThreadedTicketServer implements Runnable {
+class ThreadedTicketServer extends Thread implements Runnable {
 
 	final String hostname = "127.0.0.1";
 	String threadname = "X";
 	String testcase;
 	TicketClient sc;
-	
+	Socket socket;
+	public ThreadedTicketServer(Socket sock)
+	{
+		this.socket = sock;
+	}
 
 	public void run() {
 		//TODO:422C
 		String fromClient;
 		ServerSocket serverSocket;
 		try {
-			serverSocket=new ServerSocket(TicketServer.PORT);
-			Socket clientSocket = serverSocket.accept();
-			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		
-				String result = TicketServer.theater.bestAvailableSeat();
-				if(result.equals("-1"))
+			//serverSocket=new ServerSocket(TicketServer.PORT)
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			if(in.readLine().equals("requesting a ticket"))
+			{
+			String result = TicketServer.theater.bestAvailableSeat();
+			if(result.equals("-1"))
 				{
 					out.println("Sorry! Sold out of tickets");
-					serverSocket.close();
+					socket.close();
 				}
-				else
+			else
 				{
 					out.println(result);
 				}
-			
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

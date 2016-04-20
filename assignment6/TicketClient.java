@@ -23,9 +23,8 @@ class ThreadedTicketClient implements Runnable {
 			Socket echoSocket = new Socket(hostname, TicketServer.PORT);
 			PrintWriter out = new PrintWriter(echoSocket.getOutputStream(), true);
 			BufferedReader in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-				
-			fromServer=in.readLine();
 			out.println("requesting a ticket");
+			fromServer=in.readLine();
 			if(fromServer.equals("Sorry! Sold out of tickets"))
 			{				}
 			else
@@ -36,7 +35,7 @@ class ThreadedTicketClient implements Runnable {
 				
 		}catch (Exception e) {
 			e.printStackTrace();
-			System.exit(1);
+			//System.exit(1);
 		}
 		
 		
@@ -66,7 +65,7 @@ public class TicketClient {
 	void requestTicket() {
 		//TODO::thread.run()
 		tc.run();
-		System.out.println("Client: " + threadName+ " Received Seats " +result);
+		System.out.println("TicketBooth: " + threadName+ " Reserved Seats " +result);
 	}
 
 	void sleep() {
